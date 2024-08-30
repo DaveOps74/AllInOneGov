@@ -27,8 +27,11 @@
             }
         },
         "Lighthouse-resourceGroups": {
-            "type": "string"
-        }              
+            "type": "array",
+            "metadata": {
+                "description": "Specify the resource groups for the MSP offer"
+            }
+        }             
     },
     "variables": {
         "mspRegistrationName": "[guid(parameters('Lighthouse-mspOfferName'))]",
