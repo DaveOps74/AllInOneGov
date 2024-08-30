@@ -31,31 +31,36 @@
             "metadata": {
                 "description": "Specify the resource groups for the MSP offer"
             }
-        }             
+        }            
     },
-    "variables": {
-        "mspRegistrationName": "[guid(parameters('Lighthouse-mspOfferName'))]",
-        "mspAssignmentName": "[guid(parameters('Lighthouse-mspOfferName'))]"
-    },
+    "variables": {},
     "resources": [
         {
             "type": "Microsoft.ManagedServices/registrationDefinitions",
             "apiVersion": "2019-06-01",
-            "name": "[variables('mspRegistrationName')]",
+            "name": "[guid(parameters('Lighthouse-resourceGroups')[copyIndex()].rgName)]",
             "properties": {
                 "registrationDefinitionName": "[parameters('Lighthouse-mspOfferName')]",
                 "description": "[parameters('Lighthouse-mspOfferDescription')]",
                 "managedByTenantId": "[parameters('Lighthouse-managedByTenantId')]",
                 "authorizations": "[parameters('Lighthouse-authorizations')]"
+            },
+            "copy": {
+                "name": "deploymentCopy",
+                "count": "[length(parameters('Lighthouse-resourceGroups'))]"
             }
         },
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2018-05-01",
-            "name": "rgAssignment",
-            "resourceGroup": "[parameters('Lighthouse-resourceGroups')]",
+            "name": "[concat('rgAssignment', copyIndex())]",
+            "resourceGroup": "[parameters('Lighthouse-resourceGroups')[copyIndex()].rgName]",
+             "copy": {
+                "name": "deploymentCopy",
+                "count": "[length(parameters('Lighthouse-resourceGroups'))]"
+            },           
             "dependsOn": [
-                "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
+                "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', guid(parameters('Lighthouse-resourceGroups')[copyIndex()].rgName))]"
             ],
             "properties":{
                 "mode":"Incremental",
@@ -67,9 +72,9 @@
                         {
                             "type": "Microsoft.ManagedServices/registrationAssignments",
                             "apiVersion": "2019-06-01",
-                            "name": "[variables('mspAssignmentName')]",
+                            "name": "[guid(parameters('Lighthouse-resourceGroups')[copyIndex()].rgName)]",
                             "properties": {
-                                "registrationDefinitionId": "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
+                                "registrationDefinitionId": "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', guid(parameters('Lighthouse-resourceGroups')[copyIndex()].rgName))]"
                             }
                         }
                     ]
