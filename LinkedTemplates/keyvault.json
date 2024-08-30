@@ -1,0 +1,141 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Keyvault-Name": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the name of the KeyVault, this value must be globally unique."
+            }
+        },
+        "Keyvault-location": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the Azure location where the key vault should be created."
+            }
+        },
+        "Keyvault-enabledForDeployment": {
+            "type": "bool",
+            "metadata": {
+                "description": "Specifies whether Azure Virtual Machines are permitted to retrieve certificates stored as secrets from the key vault."
+            }
+        },
+        "Keyvault-enabledForDiskEncryption": {
+            "type": "bool",
+            "metadata": {
+                "description": "Specifies whether Azure Disk Encryption is permitted to retrieve secrets from the vault and unwrap keys."
+            }
+        },
+        "Keyvault-enabledForTemplateDeployment": {
+            "type": "bool",
+            "metadata": {
+                "description": "Specifies whether Azure Resource Manager is permitted to retrieve secrets from the key vault."
+            }
+        },
+        "Keyvault-enablePurgeProtection": {
+            "type": "bool",
+            "metadata": {
+                "description": "Property specifying whether protection against purge is enabled for this vault.  This property does not accept false but enabled here to allow for this to be optional, if false, the property will not be set."
+            }
+        },
+        "Keyvault-enableRbacAuthorization": {
+            "type": "bool",
+            "metadata": {
+                "description": "Property that controls how data actions are authorized. When true, the key vault will use Role Based Access Control (RBAC) for authorization of data actions, and the access policies specified in vault properties will be ignored."
+            }
+        },
+        "Keyvault-enableSoftDelete": {
+            "type": "bool",
+            "metadata": {
+                "description": "Property to specify whether the 'soft delete' functionality is enabled for this key vault. If it's not set to any value(true or false) when creating new key vault, it will be set to true by default. Once set to true, it cannot be reverted to false."
+            }
+        },
+        "Keyvault-softDeleteRetentionInDays": {
+            "type": "int",
+            "metadata": {
+                "description": "softDelete data retention days, only used if enableSoftDelete is true. It accepts >=7 and <=90."
+            }
+        },
+        "Keyvault-tenantId": {
+            "type": "string",
+            "defaultValue": "[subscription().tenantId]",
+            "metadata": {
+                "description": "Specifies the Azure Active Directory tenant ID that should be used for authenticating requests to the key vault. Get it by using Get-AzSubscription cmdlet."
+            }
+        },
+        "Keyvault-networkRuleBypassOptions": {
+            "type": "string",
+            "metadata": {
+                "description": "Tells what traffic can bypass network rules. This can be 'AzureServices' or 'None'. If not specified the default is 'AzureServices'."
+            }
+        },
+        "Keyvault-NetworkRuleAction": {
+            "type": "string",
+
+            "metadata": {
+                "description": "The default action when no rule from ipRules and from virtualNetworkRules match. This is only used after the bypass property has been evaluated."
+            }
+        },
+        "Keyvault-accessPolicies": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "An complex object array that contains the complete definition of the access policy."
+            }
+        },
+        "Keyvault-skuName": {
+            "type": "string",
+            "defaultValue": "Standard",
+            "allowedValues": [
+                "Standard",
+                "Premium"
+            ],
+            "metadata": {
+                "description": "Specifies whether the key vault is a standard vault or a premium vault."
+            }
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "name": "[parameters('Keyvault-Name')]",
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2019-09-01",
+            "location": "[parameters('Keyvault-location')]",
+            "properties": {
+                "tenantId": "[parameters('Keyvault-tenantId')]",
+                "sku": {
+                    "family": "A",
+                    "name": "[parameters('Keyvault-skuName')]"
+                },
+                "accessPolicies": "[parameters('Keyvault-accessPolicies')]",
+                "enabledForDeployment": "[parameters('Keyvault-enabledForDeployment')]",
+                "enabledForDiskEncryption": "[parameters('Keyvault-enabledForDiskEncryption')]",
+                "enabledForTemplateDeployment": "[parameters('Keyvault-enabledForTemplateDeployment')]",
+                "enableSoftDelete": "[parameters('Keyvault-enableSoftDelete')]",
+                "softDeleteRetentionInDays": "[if(parameters('Keyvault-enableSoftDelete'), parameters('Keyvault-softDeleteRetentionInDays'), json('null'))]",
+                "enableRbacAuthorization": "[parameters('Keyvault-enableRbacAuthorization')]",
+                "enablePurgeProtection": "[if(parameters('Keyvault-enablePurgeProtection'), parameters('Keyvault-enablePurgeProtection'), json('null'))]",
+                "networkAcls": {
+                    "bypass": "[parameters('Keyvault-networkRuleBypassOptions')]",
+                    "defaultAction": "[parameters('Keyvault-networkRuleAction')]"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "vaultName": {
+            "type": "string",
+            "value": "[parameters('Keyvault-Name')]"
+        },
+        "vaultResourceGroup": {
+            "type": "string",
+            "value": "[resourceGroup().name]"
+        },
+        "location": {
+            "type": "string",
+            "value": "[parameters('Keyvault-location')]"
+        }
+    }
+}
