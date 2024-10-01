@@ -8,6 +8,8 @@ $LogAnalyticsWorkspaceName = "law-sentinel-400"
 
 $KeyVaultResourceGroupName = "rg-sentinelkv-uks-400"
 
+$IdentityType = "SystemAssigned"
+
 $AzureActivityPolicyAssignmentName = "SOC AAL"
 $AzureActivityPolicyAssignmentDisplayName = "SIEM - Configure Azure Activity logs to stream to specified Log Analytics workspace"
 
@@ -44,8 +46,8 @@ $AzureLogicAppsPolicyScope = "/subscriptions/$subscriptionId/resourceGroups/$Sen
 $logAnalyticsWorkspaceId = (Get-AzOperationalInsightsWorkspace -ResourceGroupName $SentinelResourceGroupName -Name $LogAnalyticsWorkspaceName).ResourceId
 
 # Create Policy Assignment(s)
-New-AzPolicyAssignment -Name $AzureActivityPolicyAssignmentName -DisplayName $AzureActivityPolicyAssignmentDisplayName -Scope $AzureActivityPolicyScope -policyDefinition $AzureActivityPolicyDefinition -PolicyParameterObject @{ logAnalytics = $logAnalyticsWorkspaceId } -IdentityType SystemAssigned -Location $Location
-New-AzPolicyAssignment -Name $AzureKeyVaultPolicyAssignmentName -DisplayName $AzureKeyVaultPolicyAssignmentDisplayName -Scope $AzureKeyVaultPolicyScope -policyDefinition $AzureKeyVaultPolicyDefinition -PolicyParameterObject @{ logAnalytics = $logAnalyticsWorkspaceId } -IdentityType SystemAssigned -Location $Location
-New-AzPolicyAssignment -Name $AzureLogicAppsPolicyAssignmentName -DisplayName $AzureLogicAppsPolicyAssignmentDisplayName -Scope $AzureLogicAppsPolicyScope -policyDefinition $AzureLogicAppsPolicyDefinition -PolicyParameterObject @{ logAnalytics = $logAnalyticsWorkspaceId } -IdentityType SystemAssigned -Location $Location
+New-AzPolicyAssignment -Name $AzureActivityPolicyAssignmentName -DisplayName $AzureActivityPolicyAssignmentDisplayName -Scope $AzureActivityPolicyScope -policyDefinition $AzureActivityPolicyDefinition -PolicyParameterObject @{ logAnalytics = $logAnalyticsWorkspaceId } -IdentityType $IdentityType -Location $Location
+New-AzPolicyAssignment -Name $AzureKeyVaultPolicyAssignmentName -DisplayName $AzureKeyVaultPolicyAssignmentDisplayName -Scope $AzureKeyVaultPolicyScope -policyDefinition $AzureKeyVaultPolicyDefinition -PolicyParameterObject @{ logAnalytics = $logAnalyticsWorkspaceId } -IdentityType $IdentityType -Location $Location
+New-AzPolicyAssignment -Name $AzureLogicAppsPolicyAssignmentName -DisplayName $AzureLogicAppsPolicyAssignmentDisplayName -Scope $AzureLogicAppsPolicyScope -policyDefinition $AzureLogicAppsPolicyDefinition -PolicyParameterObject @{ logAnalytics = $logAnalyticsWorkspaceId } -IdentityType $IdentityType -Location $Location
 
 
